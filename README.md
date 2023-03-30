@@ -121,9 +121,89 @@
 > }
 > ```
 
-### Trim Json String
-> 
+---
 
-### ObjectMapper Modules
+## ObjectMapper 
+### JavaTimeModule
+> POST, PUT, DELETE 와 같이 Request body 를 담은 요청에서 문자열로 표현된 날짜를 
+> LocalDate, LocalDateTime 으로 직렬화해주는 모듈이다.  
+> jackson-datatype-jsr310 라이브러리에 포함되어 있다.  
 > 
+> RFC 3339 포맷의 문자열을 ZonedDateTime 으로 직렬화(json -> dto), 역직렬화(dto -> json) 설정 코드
+> ```java
+> @Configuration
+> public class JacksonConfiguration {
+> 
+>     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
+> 
+>     @Bean
+>     @Primary
+>     public ObjectMapper serializingObjectMapper() {
+>         ObjectMapper objectMapper = new ObjectMapper();
+>         objectMapper.registerModule(javaTimeModule());
+>         return objectMapper;
+>     }
+>     
+>     private JavaTimeModule javaTimeModule() {
+>         JavaTimeModule javaTimeModule = new JavaTimeModule();
+>         javaTimeModule.addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer());
+>         javaTimeModule.addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer());
+>     }
+> 
+>     class ZonedDateTimeTimeSerializer extends JsonSerializer<ZonedDateTime> {
+>         @Override
+>         public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+>             gen.writeString(value.format(FORMATTER));
+>         }
+>     }
+> 
+>     class ZonedDateTimeDeserializer extends JsonDeserializer<ZonedDateTime> {
+>         @Override
+>         public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+>             return ZonedDateTime.parse(p.getValueAsString(), FORMATTER);
+>         }
+>     }
+> }
+> ```
 
+### [Custom] TrimStringModule
+> 앞뒤 공백이 있는 문자열의 공백을 없애서 직렬화(json -> dto), 역직렬화(dto -> json)
+> ```java
+> @Configuration
+> public class JacksonConfiguration {
+> 
+>     @Bean
+>     @Primary
+>     public ObjectMapper serializingObjectMapper() {
+>         ObjectMapper objectMapper = new ObjectMapper();
+>         objectMapper.registerModule(trimStringModule());
+>         return objectMapper;
+>     }
+>     
+>     private TrimStringModule trimStringModule() {
+>         TrimStringModule trimStringModule = new TrimStringModule();
+>         trimStringModule.addSerializer(String.class, new TrimStringSerializer());
+>         trimStringModule.addDeserializer(String.class, new TrimStringDeserializer());
+>     }
+>       
+>     static class TrimStringModule extends SimpleModule {
+>     }
+> 
+>     static class TrimStringSerializer extends JsonSerializer<String> {
+>         @Override
+>         public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+>             gen.writeString(StringUtils.trimWhitespace(value));
+>         }
+>     }
+> 
+>     static class TrimStringDeserializer extends JsonDeserializer<String> {
+>         @Override
+>         public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+>             return StringUtils.trimWhitespace(p.getValueAsString());
+>         }
+>     }
+> }
+> ```
+
+### 참조사이트
+> [Jackson으로-LocalDate-자동-매핑하기](https://velog.io/@recordsbeat/Jackson%EC%9C%BC%EB%A1%9C-LocalDate-%EC%9E%90%EB%8F%99-%EB%A7%A4%ED%95%91%ED%95%98%EA%B8%B0)
