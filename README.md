@@ -63,13 +63,63 @@
 
 ## WebConfig
 ### Configuration class
-> 
+> 웹에 관한 설정은 @Configuration 클래스에 WebMvcConfigurer 인터페이스를 구현하여 설정한다.  
+> 필요한 웹 설정을 적절히 Override 하여 설정한다.  
+> WebConfig.java
+> ```java
+> @Configuration
+> public class WebConfig implements WebMvcConfigurer {
+>   ...
+> }
+> ```
 
 ### Static resources
+> application.yml  
+> ```yaml
+> spring:
+>   web:
+>       resources:
+>           static-locations: classpath:/static, classpath:/test-static
+> ```
+> 위의 설정 시 src/resources/static 및 src/resources/test-static 에 있는 파일에 대해 외부 접근이 가능하다.    
+> 예를 들어 static 디렉터리 아래 test.txt 파일을 외부에서 접근하려하면 다음과 같이 접근하면 된다.  
+> `http://localhost:8080/test.txt`: 포트 뒤 경로에 /static 이 없어도 된다.  
+> 디폴트 값으로 classpath:/static 으로 되어 있음으로 만약 src/resources/static 디렉터리 경로에 외부 접근 파일을
+> 둔다면 따로 application.yml 설정을 건들 필요 없다.  
 > 
+> WebConfig.java
+> ```java
+> @Configuration
+> public class WebConfig implements WebMvcConfigurer {
+>    ...
+>    @Override
+>    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+>        registry.addResourceHandler("/static/**")
+>                .addResourceLocations("classpath:/static/")
+>                .setCachePeriod(0);     // 0은 캐시를 사용 안한다는 설정이다.
+>    }
+> }
+> ```
+> `spring.web.resources.static-locations` 설정은 uri 에 /static 이 붙지 않는 경로를 설정하는 것이지만
+> 위의 WebConfig 에서 `ResourceHandlerRegistry` 를 통한 설정은 uri 설정 및 설정한 uri 에 맵핑되는 리소스 위치 경로를
+> 지정한다. 또한 캐시 설정도 가능하다.  
 
 ### CORS Settings
-> 
+> CorsRegistry 객체를 이용하여 CORS 를 적용할 도메인 설정 및 설정한 도메인의 접속을 허용할 출처를 설정할 수 있다.  
+> 브라우저를 통한 API 호출의 경우 CORS 설정이 반드시 필요하며, 브라우저가 아닌 모바일 앱에서 API 를 호출하는 경우에는
+> 필요하지 않을 것으로 예상된다.(CORS 는 브라우저에서 동작하기 때문에)  
+> WebConfig.java
+> ```java
+> @Configuration
+> public class WebConfig implements WebMvcConfigurer {
+>    ...
+>    @Override
+>    public void addCorsMappings(CorsRegistry registry) {
+>        registry.addMapping("/**")     // 도메인 설정
+>                .allowedOrigins("*");  // 설정한 도메인의 접속을 허용할 출처 설정
+>    }  
+> }
+> ```
 
 ### Trim Json String
 > 
