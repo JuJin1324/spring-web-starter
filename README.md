@@ -1,5 +1,29 @@
 # spring-web-starter
 
+## Apache tomcat
+### TODO
+> TODO
+
+---
+
+## WebConfig
+### Configuration class
+>
+
+### Static resources
+>
+
+### CORS Settings
+>
+
+### Trim Json String
+>
+
+### ObjectMapper Modules
+>
+
+---
+
 ## Paging
 ### org.springframework.data.domain.Pageable
 > Controller 의 메서드에서 ArgumentResolver 를 통해서 Pageable 객체를 매개변수로 받을 수 있다.  
@@ -58,22 +82,3 @@
 > }
 > ...
 > ```
-
----
-
-## WebConfig
-### Configuration class
-> 
-
-### Static resources
-> 
-
-### CORS Settings
-> 
-
-### Trim Json String
-> 
-
-### ObjectMapper Modules
-> 
-
