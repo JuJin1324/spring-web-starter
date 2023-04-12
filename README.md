@@ -18,6 +18,9 @@
 > JAVA EE 기반으로 만들어졌으며, JSP 와 Servlet 을 구동하기 위한 서블릿 컨테이너 역할을 수행한다.  
 > 웹 서버와는 다르게 DB 연결, 다른 응용프로그램과 상호 작용 등 동적인 기능들을 사용할 수 있다.  
 
+### application.yml
+> TODO
+
 ---
 
 ## WebConfig
@@ -254,5 +257,11 @@
 ---
 
 ## Spring Multipart
+### TODO
+> TODO
+
+---
+
+## Server push
 ### TODO
 > TODO
