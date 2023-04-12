@@ -195,10 +195,27 @@
 > 예시: `@PageableDefault(page = 0, size = 20, sort = "orderDateUTC,desc")`
 
 ### org.springframework.data.domain.Page
-> TODO 
+> TODO
+> **getTotalElements()**  
+> 쿼리 결과물의 전체 데이터 갯수이다.  
+> 
+> **getTotalPages()**  
+> 쿼리를 통해 가져온 요소들을 size 크기에 맞춰 페이징하였을 때 나오는 총 페이지의 갯수이다.  
+> 
+> **getSize()**  
+> 쿼리를 수행한 전체 데이터에 대해 일정 수 만큼 나눠 페이지를 구성하는데, 이 일정 수의 크기이다.
+>
+> **getNumber()**  
+> 요소를 가져온 페이지의 번호를 의미한다.
+>
+> **getNumberOfElements()**  
+> 현재 페이지에 존재하는 요소의 개수이다. 최대 size의 수 만큼 나올 수 있다.  
 
 ### org.springframework.data.domain.Slice
 > TODO
+
+### 참조사이트
+> [Spring Pagination과 Page 그리고 Pageable](https://velog.io/@albaneo0724/Spring-Pagination과-Page-그리고-Pageable)
 
 ---
 

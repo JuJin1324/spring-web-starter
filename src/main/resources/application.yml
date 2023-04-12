@@ -1,0 +1,37 @@
+spring:
+    datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3399/web_starter
+        username: spring_web_starter
+        password: spring_web_starter
+    jpa:
+        hibernate:
+            ddl-auto: create
+        properties:
+            hibernate:
+                # ??? ?? ?? ????? ? ?? ?? Lazy Loading ? In ?? ???? ???? ??
+                # ??? 100?? ?? ??? ???? ??? ?? ?????. ? ???? 1000 ??.
+                # in ??? ??? 1000?? ???? ??? ???? ???????? ?? ??.
+                default_batch_fetch_size: 256
+                batch_fetch_style: dynamic        # ?? ??? ??
+                query:
+                    in_clause_parameter_padding: true   # SQL In Clause ?? ? In ? 2? ?? ??? In ? ????? ??? ??
+        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+        open-in-view: false
+    data:
+        web:
+            pageable:
+                default-page-size: 20
+
+decorator:
+    datasource:
+        p6spy:
+            enable-logging: true
+
+logging:
+    level:
+        root: info
+        web: info
+        org.hibernate.SQL: debug
+        p6spy: info
+        com.zaxxer.hikari.pool.HikariPool: debug
