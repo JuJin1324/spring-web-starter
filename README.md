@@ -6,8 +6,8 @@
 > 클라이언트에서 요청하는 HTTP요청을 처리하는 서버를 의미한다. 이는 정적타입(HTML, CSS, 이미지 등)의 데이터만을 처리한다.
 > 
 > **웹 애플리케이션 서버(WAS)**  
-> * 사용자와 상호작용하는 동적인 페이지를 제공하는 서버.   
-> * 동적인 페이지 제공을 위한 웹 서비스 처리 및 데이터베이스 연결을 통해서 고객 데이터를 관리 및 유지한다.    
+> 사용자와 상호작용하는 동적인 페이지를 제공하는 서버.     
+> 동적인 페이지 제공을 위한 웹 서비스 처리 및 데이터베이스 연결을 통해서 고객 데이터를 관리 및 유지한다.      
 > 기본적으로 사용되는 기능 3가지는 아래와 같다.    
 > * 프로그램 실행 환경과 데이터베이스 접속 기능을 제공한다.  
 > * 여러 개의 트랜잭션을 관리한다.  
@@ -46,7 +46,7 @@
 > 위의 설정 시 src/resources/static 및 src/resources/test-static 에 있는 파일에 대해 외부 접근이 가능하다.    
 > 예를 들어 static 디렉터리 아래 test.txt 파일을 외부에서 접근하려하면 다음과 같이 접근하면 된다.  
 > `http://localhost:8080/test.txt`: 포트 뒤 경로에 /static 이 없어도 된다.  
-> 디폴트 값으로 classpath:/static 으로 되어 있음으로 만약 src/resources/static 디렉터리 경로에 외부 접근 파일을
+> 디폴트 값으로 classpath:/static 으로 되어 있으므로 만약 src/resources/static 디렉터리 경로에 외부 접근 파일을
 > 둔다면 따로 application.yml 설정을 건들 필요 없다.
 >
 > WebConfig.java
@@ -94,9 +94,9 @@
 > RFC 3339 포맷의 문자열을 ZonedDateTime 으로 직렬화(json -> dto), 역직렬화(dto -> json) 설정 코드
 > ```java
 > @Configuration
-> public class JacksonConfiguration {
+> public class JacksonConfig {
 > 
->     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
+>     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 > 
 >     @Bean
 >     @Primary
@@ -110,18 +110,19 @@
 >         JavaTimeModule javaTimeModule = new JavaTimeModule();
 >         javaTimeModule.addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer());
 >         javaTimeModule.addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer());
+>         return javaTimeModule;
 >     }
 > 
->     class ZonedDateTimeTimeSerializer extends JsonSerializer<ZonedDateTime> {
+>     static class ZonedDateTimeTimeSerializer extends JsonSerializer<ZonedDateTime> {
 >         @Override
 >         public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 >             gen.writeString(value.format(FORMATTER));
 >         }
 >     }
 > 
->     class ZonedDateTimeDeserializer extends JsonDeserializer<ZonedDateTime> {
+>     static class ZonedDateTimeDeserializer extends JsonDeserializer<ZonedDateTime> {
 >         @Override
->         public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+>         public ZonedDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 >             return ZonedDateTime.parse(p.getValueAsString(), FORMATTER);
 >         }
 >     }
@@ -146,18 +147,19 @@
 >         TrimStringModule trimStringModule = new TrimStringModule();
 >         trimStringModule.addSerializer(String.class, new TrimStringSerializer());
 >         trimStringModule.addDeserializer(String.class, new TrimStringDeserializer());
+>         return trimStringModule;
 >     }
 >       
 >     static class TrimStringModule extends SimpleModule {
 >     }
-> 
+>     
 >     static class TrimStringSerializer extends JsonSerializer<String> {
 >         @Override
 >         public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 >             gen.writeString(StringUtils.trimWhitespace(value));
 >         }
 >     }
-> 
+>     
 >     static class TrimStringDeserializer extends JsonDeserializer<String> {
 >         @Override
 >         public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -168,6 +170,7 @@
 > ```
 
 ### 참조사이트
+> [[JAVA] 자바 날짜 포맷 변경 방법(SimpleDateFormat) yyyyMMdd](https://junghn.tistory.com/entry/JAVA-자바-날짜-포맷-변경-방법SimpleDateFormat-yyyyMMdd)
 > [Jackson으로-LocalDate-자동-매핑하기](https://velog.io/@recordsbeat/Jackson%EC%9C%BC%EB%A1%9C-LocalDate-%EC%9E%90%EB%8F%99-%EB%A7%A4%ED%95%91%ED%95%98%EA%B8%B0)
 
 ---
@@ -198,7 +201,7 @@
 > 예시: `@PageableDefault(page = 0, size = 20, sort = "orderDateUTC,desc")`
 
 ### org.springframework.data.domain.Page
-> TODO
+> TODO  
 > **getTotalElements()**  
 > 쿼리 결과물의 전체 데이터 갯수이다.  
 > 
