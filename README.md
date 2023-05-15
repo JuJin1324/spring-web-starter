@@ -19,7 +19,67 @@
 > 웹 서버와는 다르게 DB 연결, 다른 응용프로그램과 상호 작용 등 동적인 기능들을 사용할 수 있다.  
 
 ### application.yml
-> TODO
+> **Connection 관련**  
+> `server.tomcat.connection-timeout`: 커넥션 타임아웃 설정, 기본값은 없다.    
+> `server.tomcat.keep-alive-timeout`: 커넥션 종료 전 다른 HTTP 요청을 기다리는 시간 설정. 설정하지 않으면 connection-timeout 이 사용, 
+> -1 이면 무한. 기본값은 100.  
+> `server.tomcat.max-connections`: 서버가 주어진 시간에 처리할 수 있는 최대 커넥션 설정. 기본값은 8192.  
+> 
+> **Thread 관련**  
+> `server.tomcat.threads.max`: 최대 스레드 설정. 기본값은 200.  
+> `server.tomcat.threads.min-spare`: 최소 여유 스레드 설정. 기본값은 10.  
+> `server.tomcat.accept-count`: 가능한 모든 요청 처리 스레드가 사용 중일 때 들어오는 연결 요청의 최대 큐 길이 설정. 기본값은 100.  
+> 
+> **Cache 관련**  
+> `server.tomcat.processor-cache`: 캐시에 재사용될 프로세서 수 설정, -1 설정 시 max-connections 과 동일한 이론적 최대 크기로 설정됨. 기본값은 200.    
+> `server.tomcat.resource.allow-caching`: 어플리케이션 정적 리소스 캐싱 허용여부. 기본값은 true.  
+> `server.tomcat.resource.cache-ttl`: 정적 리소스 캐시의 유지시간(Time-to_live). 기본값은 없음.    
+> 
+> **Request 관련**  
+> `server.tomcat.max-http-form-post-size`: HTTP Post 요청의 최대 form size. 기본값은 2MB.  
+> `server.tomcat.max-swallow-size`: request body의 최대 수용 크기. 기본값은 2MB.  
+> `server.tomcat.redirect-context-root`: 컨텍스트 루트 경로에 /를 추가해서 리다이렉션 해야되는지 설정. 프록시에서 종료된 SSL을 사용하는 경우 false로 설정해야 됨. 기본값은 true.  
+> `server.tomcat.use-relative-redirects`: sendRedirect 호출에 의해 생성된 HTTP 1.1 혹은 그 이후 헤더가 상대/절대 리다이렉션을 사용할지 여부. http에서 http로 리다이렉트 되는 경우 true로 설정. 기본값은 false.  
+> `server.tomcat.reject-illegal-header`: 잘못된 헤더 이름이나 값을 갖는 request를 거부할지 여부. 기본값은 true.  
+> `server.tomcat.additional-tld-skip-patterns`: TLD(Tag Library Descriptor : JSP에서 사용되는 커스텀 태그 나 JSTL태그 설정파일) 제외 패턴 설정. 기본값은 없음.  	 
+> `server.tomcat.relaxed-path-chars`: URI 경로에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.  	 
+> `server.tomcat.relaxed-query-chars`: URL 쿼리에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.  
+> `server.tomcat.uri-encoding`: URI 인코딩 설정. 기본값은 UTF-8.  
+> 
+> **Remoteip 관련**  
+> `server.tomcat.remoteip.host-header`: 원격 호스트에서 추출된 HTTP 헤더의 이름. 기본값은 X-Forwarded-Host.  
+> `server.tomcat.remoteip.internal-proxies`: 신뢰할 수 있는 프록시와 일치하는 정규식. 기본값은 없음.  
+> `server.tomcat.remoteip.port-header`: 기본 포트 값을 override 하는데 사용되는 HTTP header의 이름. 기본값은 X-Forwarded-Port.  
+> `server.tomcat.remoteip.protocol-header`: 들어오는 프로토콜을 유지하는 헤더로, X-Forwarded-Proto 가 지정됨. 기본값은 없음.  	 
+> `server.tomcat.remoteip.protocol-header-https-value`: 들어오는 요청이 SSL을 사용하는지 여부를 나타내는 프로토콜 헤더의 값. 기본값은 https.  
+> `server.tomcat.remoteip.remote-ip-header`: 원격 IP가 추출되는 HTTP 헤더의 이름. 기본값은 X-FORWARDED-FOR.  
+> 
+> **AccessLog 관련**  
+> `server.tomcat.accesslog.buffered`: 주기적으로 접속로그의 출력 버퍼를 플러시 할지 설정. 기본값은 true.  
+> `server.tomcat.accesslog.check-exists`: 접속로그의 이름이 바뀐경우 파일이 존재하는 지 확인 여부. 기본값은 false  
+> `server.tomcat.accesslog.condition-if`: request.getAttribute("attribute name") 이 null이 아닐 경우만 로깅. 기본값은 없음.  	 
+> `server.tomcat.accesslog.condition-unless`: request.getAttribute("attribute name") 이 null일 경우만 로깅. 기본값은 없음.  
+> `server.tomcat.accesslog.directory`: 로그 파일이 생성되는 경로 설정. 기본값은 같은 디렉토리의 logs.  
+> `server.tomcat.accesslog.enabled`: 접속로그 활성화 여부. 기본값은 false.  
+> `server.tomcat.accesslog.encoding`: 로그파일 케릭터셋 설정. 기본값은 시스템 케릭터셋.  	 
+> `server.tomcat.accesslog.file-date-format`: 로그파일 이름의 날짜 형식 설정. 기본값은 `.yyyy-mm-dd`.  
+> `server.tomcat.accesslog.ipv6-canonical`: RFC 5952에 정의된 IPv6 표준 표현 형식을 사용할지 여부. 기본값은 false.  
+> `server.tomcat.accesslog.locale`: 로그에 사용되는 timesamp locale(언어, 지역 설정, 출력 형식 등을 정의하는 문자열) 접미사. 기본값은 없음.  	 
+> `server.tomcat.accesslog.max-days`: 접속 로그 보관 기간 설정. 기본값은 -1.  
+> `server.tomcat.accesslog.pattern`: 접속 로그 패턴 설정. 기본값은 `common`.  
+> `server.tomcat.accesslog.prefix`: 접속 로그 접두사 설정. 기본값은 `access_log`.  
+> `server.tomcat.accesslog.suffix`: 접속 로그 접미사 설정 기본값은 `.log`.  
+> `server.tomcat.accesslog.rename-on-rotate`: 접속 로그 로테이션 전까지 날짜를 포함하지 않을지 여부. 기본값은 false.  
+> `server.tomcat.accesslog.request-attributes-enabled`: request의 attribute에 IP주소, 호스트명, 프로토콜, 포트 정보를 설정할지 여부. 기본값은 false.  
+> `server.tomcat.accesslog.rotate`: 접속 로그의 rotation 여부. 기본값은 true.  
+> 
+> **기타**  
+> `server.tomcat.basedir`: 톰캣 기본 디렉토리 설정. 기본값은 없음.  	 
+> `server.tomcat.background-processor-delay`: 백그라운드 프로세스 호출 사이의 딜레이 설정. 시간 접미사를 쓰지 않으면 초로 사용 (초:s, 분:m..). 기본값은 10s.  
+> `server.tomcat.mbeanregistry.enabled`: mBean(Managed Bean) Registry 활성화 여부. 기본값은 false.  
+> 
+> **참조사이트**  
+> [Spring Boot Embeded Tomcat 내장 톰캣 application.properties 설정](https://aljjabaegi.tistory.com/601)  
 
 ---
 
