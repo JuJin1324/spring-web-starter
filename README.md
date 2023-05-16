@@ -286,8 +286,65 @@
 ---
 
 ## ArgumentResolver
-### TODO
-> TODO
+### 개요
+> 어떠한 요청이 컨트롤러에 들어왔을 때, 요청에 들어온 값으로부터 원하는 객체를 만들어내는 일을 ArgumentResolver 가 간접적으로 해줄 수 있다.  
+
+### 구현
+> ArgumentResolver는 HandlerMethodArgumentResolver 를 구현함으로써 시작된다.  
+> ```java
+> boolean supportsParameter(MethodParameter parameter);
+> 
+> @Nullable
+> Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception;
+> ```
+> 우리는 원하는 ArgumentResolver가 실행되길 원하는 Parameter의 앞에 특정 어노테이션을 생성해 붙인다.  
+> supportsParameter는 요청받은 메서드의 인자에 원하는 어노테이션이 붙어있는지 확인하고 원하는 어노테이션을 포함하고 있으면 true를 반환한다.  
+> resolveArgument는 supportsParameter에서 true를 받은 경우, 즉, 특정 어노테이션이 붙어있는 어느 메서드가 있는 경우 parameter가 원하는 형태로 정보를 바인딩하여 반환하는 메서드이다.
+
+### 예시
+> `GET /` 요청에 Authorization 헤더 값을 담아서 요청하면 Controller 의 메서드에 `@Authenticated` 애노테이션이 붙은 파라미터에 헤더 값을 바인딩한다.  
+> AuthorizationArgumentResolver.java
+> ```java
+> public class AuthorizationArgumentResolver implements HandlerMethodArgumentResolver {
+>     @Override
+>     public boolean supportsParameter(MethodParameter parameter) {
+>         return parameter.getParameterType().equals(String.class)      // Controller 의 메서드에 선언된 파라미터의 선언 타입이 String 이면서
+>                 && parameter.hasParameterAnnotation(Authenticated.class); // @Authenticated 애노테이션이 붙어있어야 파라미터로 바인딩한다.
+>     }
+> 
+>     @Override
+>     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+>         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();  
+>         return request.getHeader(AUTHORIZATION);  // request 에서 Authorization 헤더값을 리턴한다.
+>     }
+> }
+> ```
+> Authenticated.java
+> ```java
+> @Target(ElementType.PARAMETER)
+> @Retention(RetentionPolicy.RUNTIME)
+> public @interface Authenticated {
+> }
+> ```
+> WebConfig.java: ArgumentResolver 추가
+> ```java
+> @Configuration
+> public class WebConfig implements WebMvcConfigurer {
+>     @Override
+>     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+>         resolvers.add(new AuthorizationArgumentResolver());
+>     }
+> }
+> ```
+> HomeController.java
+> ```java
+> ...
+> @GetMapping("/")
+> public String getHome(@Authenticated String authentication) {
+>     return authentication;
+> }
+> ...
+> ```
 
 ---
 
