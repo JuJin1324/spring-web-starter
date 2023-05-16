@@ -349,8 +349,81 @@
 ---
 
 ## Interceptor
-### TODO
-> TODO
+### 개요
+> 스프링 MVC 에서 인터셉터는 웹 애플리케이션 내에서 특정한 URI 호출을 말 그대로 '가로채는' 역할을 합니다.  
+> 인터셉터를 활용하면 기존 컨트롤러의 로직을 수정하지 않고도, 사전이나 사후에 제어가 가능합니다.  
+> 쉽게 말해, 요청과 응답을 가로채서 원하는 동작을 추가하는 역할입니다.  
+> 
+> 예를 들자면, 세션을 통한 인증을 쉽게 구현할 수 있습니다(Spring Security 를 쓰지 않는다는 가정하에).  
+> 요청을 받아 들이기 전, 세션에서 로그인한 사용자가 있는지 확인해보고 없다면 로그인 페이지로 redirect 시킬 수 있죠.  
+> Interceptor가 없다면 모든 컨트롤러마다 해당 로직을 넣어야 하니, 꽤나 번거롭고 비효율적입니다.  
+> 
+> **Filter 와 공통점**  
+> Servlet 기술의 Filter와 Spring MVC의 HandlerInterceptor는 특정 URI에 접근할 때 제어하는 용도로 사용된다는 공통점을 가지고 있습니다.   
+> 
+> **Filter 와 차이점**  
+> Filter는 동일한 웹 애플리케이션의 영역 내에서 필요한 자원들을 활용합니다.  
+> 웹 애플리케이션 내에서 동작하므로, 스프링의 Context를 접근하기 어렵습니다.  
+> Interceptor의 경우 스프링에서 관리되기 때문에 스프링 내의 모든 객체(빈)에 접근이 가능하다는 차이가 있습니다.  
+> 즉, 빈을 관리하는 스프링 컨텍스트 내에 있어서 생성된 빈들에 자유롭게 접근할 수 있습니다.  
+> 
+> **Filter 와 용도 처이**  
+> Filter  
+> 보안 관련 공통 작업, 모든 요청에 대한 로깅 또는 감사, 이미지/데이터 압축 및 문자열 인코딩  
+> 
+> Interceptor  
+> 인증/인가 등과 같은 공통 작업, Controller로 넘겨주는 정보의 가공, API 호출에 대한 로깅 또는 감사  
+
+### HandlerInterceptor
+> **preHandle**  
+> `boolean preHandle(request, response, handler)`: preHandle 메서드는 지정된 컨트롤러의 동작 이전에 가로채는 역할로 사용합니다.    
+> 메서드의 반환값이 true이면 핸들러의 다음 동작이 실행되지만 false이면 중단되어서 남은 인터셉터와 컨트롤러가 실행되지 않습니다.  
+>
+> 현재 실행되는 컨트롤러와 메소드의 정보를 파악하는 예제
+> ```java
+> @Override
+> public boolean preHandle(HttpServletRequest request,
+> HttpServletResponse response, Object handler) throws Exception {
+> 
+> 	  HandlerMethod handlerMethod = (HandlerMethod) handler;
+> 	  Method method = handlerMethod.getMethod();
+>     
+> 	  System.out.println("Bean: " + handlerMethod.getBean());
+> 	  System.out.println("Method: " + method);
+> 	  	
+> 	  return true;
+> }
+> ```
+> 
+> **postHandle**  
+> `void postHandle(request, response, handler, modelAndView)`: 지정된 컨트롤러의 동작 이후에 처리하며,
+> Spring MVC 의 Front Controller인 DispatcherServlet이 화면을 처리하기 전에 동작합니다.
+> 
+> 예를 들어, 특정한 메소드의 실행 결과를 HttpSession 객체에 같이 담아야 하는 경우를 생각해 볼 수 있습니다. 
+> 컨트롤러에서는 Model 객체에 결과 데이터를 저장하고, 인터셉터의 PostHandle()에서 이를 이용해 HttpSession에 결과를 담는다면 
+> 컨트롤러에서 HttpSession을 처리할 필요가 없게 됩니다.  
+> ```java
+> @Override
+> public void postHandle(HttpServletRequest request,
+>                        HttpServletResponse response, Object handler,
+>                        ModelAndView modelAndView) throws Exception {
+> 
+>     Object result = modelAndView.getModel().get("result");
+> 
+>     if (result != null) {
+>         request.getSession().setAttribute("result", result);
+>         response.sendRedirect("/home");
+>     }
+> }
+> ```
+> 
+> **afterCompletion**  
+> `void afterCompletion(request, response, handler, exception)`: DispatcherSerlvet 의 화면 처리(뷰)가 완료된 상태에서 처리합니다.
+> 
+> HandlerInterceptorAdapter 는 Spring 5.3 부터 Deprecated 되었다.  
+
+### 참조사이트
+> [Spring Interceptor, 제대로 이해하기](https://gngsn.tistory.com/153)  
 
 ---
 
