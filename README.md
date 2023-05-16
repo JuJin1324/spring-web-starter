@@ -41,16 +41,16 @@
 > `server.tomcat.redirect-context-root`: 컨텍스트 루트 경로에 /를 추가해서 리다이렉션 해야되는지 설정. 프록시에서 종료된 SSL을 사용하는 경우 false로 설정해야 됨. 기본값은 true.  
 > `server.tomcat.use-relative-redirects`: sendRedirect 호출에 의해 생성된 HTTP 1.1 혹은 그 이후 헤더가 상대/절대 리다이렉션을 사용할지 여부. http에서 http로 리다이렉트 되는 경우 true로 설정. 기본값은 false.  
 > `server.tomcat.reject-illegal-header`: 잘못된 헤더 이름이나 값을 갖는 request를 거부할지 여부. 기본값은 true.  
-> `server.tomcat.additional-tld-skip-patterns`: TLD(Tag Library Descriptor : JSP에서 사용되는 커스텀 태그 나 JSTL태그 설정파일) 제외 패턴 설정. 기본값은 없음.  	 
+> `server.tomcat.additional-tld-skip-patterns`: TLD(Tag Library Descriptor : JSP에서 사용되는 커스텀 태그 나 JSTL태그 설정파일) 제외 패턴 설정. 기본값은 없음.  
 > `server.tomcat.relaxed-path-chars`: URI 경로에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.  	 
-> `server.tomcat.relaxed-query-chars`: URL 쿼리에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.  
+> `server.tomcat.relaxed-query-chars`: URL 쿼리에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.   
 > `server.tomcat.uri-encoding`: URI 인코딩 설정. 기본값은 UTF-8.  
 > 
 > **Remoteip 관련**  
 > `server.tomcat.remoteip.host-header`: 원격 호스트에서 추출된 HTTP 헤더의 이름. 기본값은 X-Forwarded-Host.  
 > `server.tomcat.remoteip.internal-proxies`: 신뢰할 수 있는 프록시와 일치하는 정규식. 기본값은 없음.  
 > `server.tomcat.remoteip.port-header`: 기본 포트 값을 override 하는데 사용되는 HTTP header의 이름. 기본값은 X-Forwarded-Port.  
-> `server.tomcat.remoteip.protocol-header`: 들어오는 프로토콜을 유지하는 헤더로, X-Forwarded-Proto 가 지정됨. 기본값은 없음.  	 
+> `server.tomcat.remoteip.protocol-header`: 들어오는 프로토콜을 유지하는 헤더로, X-Forwarded-Proto 가 지정됨. 기본값은 없음.  
 > `server.tomcat.remoteip.protocol-header-https-value`: 들어오는 요청이 SSL을 사용하는지 여부를 나타내는 프로토콜 헤더의 값. 기본값은 https.  
 > `server.tomcat.remoteip.remote-ip-header`: 원격 IP가 추출되는 HTTP 헤더의 이름. 기본값은 X-FORWARDED-FOR.  
 > 
@@ -261,27 +261,27 @@
 > 예시: `@PageableDefault(page = 0, size = 20, sort = "orderDateUTC,desc")`
 
 ### org.springframework.data.domain.Page
-> TODO  
-> **getTotalElements()**  
-> 쿼리 결과물의 전체 데이터 갯수이다.  
-> 
-> **getTotalPages()**  
-> 쿼리를 통해 가져온 요소들을 size 크기에 맞춰 페이징하였을 때 나오는 총 페이지의 갯수이다.  
-> 
-> **getSize()**  
-> 쿼리를 수행한 전체 데이터에 대해 일정 수 만큼 나눠 페이지를 구성하는데, 이 일정 수의 크기이다.
->
-> **getNumber()**  
-> 요소를 가져온 페이지의 번호를 의미한다.
->
-> **getNumberOfElements()**  
-> 현재 페이지에 존재하는 요소의 개수이다. 최대 size의 수 만큼 나올 수 있다.  
+> page는 조회쿼리 이후 전체 데이터 갯수를 한번더 조회하는 카운트 쿼리가 실행된다.  
+> `getTotalElements()`: 전체 데이터의 갯수이다.  
+> `getTotalPages()`: 전체 페이지의 갯수이다.   
 
 ### org.springframework.data.domain.Slice
-> TODO
+> slice는 카운트쿼리가 나가지 않고 다음 slice가 존재하는지 여부만 확인할 수 있기때문에, 데이터 양이 많으면 많을수록 slice를 사용하는것이 성능상 유리하다.  
+> page는 게시판과 같이 총 데이터 갯수가 필요한 환경에서, slice는 모바일과 같이 총 데이터 갯수가 필요없는 환경에서(무한스크롤 등) 각각 필요한 용도에 알맞게 쓰면된다.  
+> `getNumber()`: 현재 페이지  
+> `getSize()`: 페이지 크기  
+> `getNumberOfElements()`: 현재 페이지에 조회한 데이터 개수  
+> `getContent()`: 현재 페이지에 조회한 데이터  
+> `hasContent()`: 현재 페이지에 데이터가 있는지 여부  
+> `getSort()`: 정렬 여부  
+> `isFirst()`: 첫 번째 페이지인지 여부  
+> `isLast()`: 마지막 페이지인지 여부  
+> `hasNext()`: 다음 페이지가 있는지 여부  
+> `hasPrevious()`:  이전 페이지가 있는지 여부  
 
 ### 참조사이트
-> [Spring Pagination과 Page 그리고 Pageable](https://velog.io/@albaneo0724/Spring-Pagination과-Page-그리고-Pageable)
+> [Spring Pagination과 Page 그리고 Pageable](https://velog.io/@albaneo0724/Spring-Pagination과-Page-그리고-Pageable)  
+> [Spring Data JPA의 Page와 Slice](https://zayson.tistory.com/entry/Spring-Data-JPA%EC%9D%98-Page%EC%99%80-Slice)  
 
 ---
 
