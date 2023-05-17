@@ -580,8 +580,98 @@
 ---
 
 ## Spring Multipart
-### TODO
-> TODO
+### Multipart 가 생긴 이유
+> Sprint MVC 의 파일 업로드에 대해 알아보기 전에 Multipart/form-data 에 대해 먼저 알아야 합니다.  
+> 우리가 일반적으로 폼 데이터를 전송하면 application/x-www-form-urlencoded 의 형식으로 전송됩니다. 
+> HTTP body 에 바로 전송하고자 하는 데이터가 들어가는 형태입니다. name=kim&age=26 과 같은 key-value 쌍이 body에 들어가는 것이지요.  
+> 이렇게 동일한 타입의 문자 데이터를 전송하는 것은 전혀 무리가 없습니다.
+> 하지만 이런 key-value 형태의 문자데이터와 바이너리 형태의 파일 데이터가 함께 전송되어야 하는 경우엔 어떨까요?
+> body 의 어디쯤에 여기부터는 파일이 전송되는 것이라고 알려주어야 할텐데 일반적인 application/x-www-form-urlencoded 타입으로는 불가능합니다.   
+> 전송되는 각 폼 데이터를 구분해주어야 합니다. 여기서 구분되는 한 단위를 part라고 하고 동시에 여러 단위의 part를 나눌 수 있기에 multipart라는 이름이 
+> 붙은 것 입니다.   
+> 이렇게 body 에서 이 데이터를 구분해야하기 때문에 요청파라미터를 url 뒤에 문자열로 추가하는 GET 방식으로는 파일을 보낼 수 없습니다. 
+> 그래서 multipart 타입은 POST 방식에서만 사용가능합니다.  
+> 
+> form 으로 파일 및 텍스트 등의 데이터를 같이 보냈을 때 request 요청은 다음과 같다.
+> ```
+> POST /someurl HTTP/1.1
+> ...
+> ...
+> Content-type: multipart/form-data; boundary=---------------------------7d81c536d04c8       
+> ...
+> ...
+> -----------------------------7d81c536d04c8                                                                    
+> Content-Disposition: form-data; name="desc"
+> 
+> ...(텍스트 데이터)
+> -----------------------------7d81c536d04c8                                                                  
+> Content-Disposition: form-data; name="image"; filename="fileName.jpg"
+> Content-Type: image/jpeg
+> ...(Binary 이미지 데이터)
+> ```
+
+### multipart/form-data 파싱
+> Spring 은 MultipartFile 타입을 제공합니다. 또한 감사하게도 @RequestParam, @ModelAttribute 를 모두 사용할 수 있습니다.  
+> Client 에서 Content type 이 multipart/form-data 로 key value 데이터 및 파일 데이터를 전송한 경우 
+> 스프링에서는 @RequestParam 을 통해서 key value 데이터 및 파일 데이터를 매개변수로 사용할 수 있다.  
+> 
+> ```java
+> @Slf4j
+> @Controller
+> public class TestController {
+>     ...
+>     @PostMapping("/review/form")
+>     public String form(@RequestParam String itemName,
+>                        @RequestParam MultipartFile file) {
+> 
+>         if (!file.isEmpty()) {
+>             String filename = file.getOriginalFilename();
+>             log.info("file.getOriginalFilename = {}", filename);
+> 
+>             String fullPath = uploadDir + filename;
+>             file.transferTo(new File(fullPath));
+>         }
+>         return "upload-form";
+>     }
+> }
+> ```
+> MultipartFile 의 `getOrifinalFilename()` 메서드를 통해서 파일명과 확장자까지 붙여서 문자열을 가져올 수 있다.  
+> MultipartFile 의 `transferTo(file)` 메서드를 통해서 파일을 저장할 수 있다.  
+
+### JSON + multipart 요청 처리
+> Client 전송 예시   
+> 전체 Content type: multipart/mixed  
+> key value 데이터: request=JSON 문자열, Content type: application/json    
+> 파일 데이터: imageFile=<file>, Content type: image/png  
+> 로 전송하면 스프링에서는 각 key value 데이터 및 파일 데이터를 @RequestPart 로 받을 수 있다.  
+> 다만 스프링에서는 @PostMapping 에서 consumes 에 `MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE` 를
+> 설정해야한다.  
+> ```java
+> @RestController
+> @Slf4j
+> public class TestController {
+> 
+>     @PostMapping(value = "/api/v1/character", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+>     public void saveCharacter(@RequestPart CharacterCreateRequest request,
+>                               @RequestPart MultipartFile imageFile) {
+>         log.info("이름 : {}, 나이 : {}, 이미지 : {}", request.getAge(), request.getName(), imgFile);
+>     }
+> }
+> ```
+
+### MultipartFile 의 메서드
+> `String getName()`: 파라미터의 이름 <input> 태그의 이름  
+> `String getOriginalFilename()`: 업로그되는 파일의 이름  
+> `boolean isEmpty()`: 파일이 존재하지 않는 경우 true  
+> `long getSize()`: 업로드되는 파일의 크기  
+> `byte[] getBytes()`: byte[]로 파일 데이터 반환  
+> `inputStream getInputStream()`: 파일데이터와 연결된 inputStream을 반환  
+> `transferTo(File file)`: 파일의 저장  
+
+### 참조사이트
+> [Spring MVC (15) 파일 업로드1 (Multipart/form-data, MultipartFile)](https://velog.io/@dhk22/Spring-MVC-15-%ED%8C%8C%EC%9D%BC-%EC%97%85%EB%A1%9C%EB%93%9C1-Multipartform-data-MultipartFile)    
+> [Spring Multipart 및 파일업로드 (study4_4)](https://brilliantdevelop.tistory.com/111)    
+> [Spring Web MVC - Multipart 요청 다루기](https://ykh6242.tistory.com/entry/Spring-Web-MVC-Multipart-%EC%9A%94%EC%B2%AD-%EB%8B%A4%EB%A3%A8%EA%B8%B0)  
 
 ---
 
