@@ -676,5 +676,66 @@
 ---
 
 ## Server push
-### TODO
-> TODO
+### Server push 가 필요한 경우
+> * 클라이언트에서 실시간 데이터 업데이트 페이지가 필요한 경우
+> * 클라이언트에서 실시간 알림 기능을 제공하는 경우
+> * 기타 등등
+
+### Server push 구현 방법
+> 1.polling(client poll) 방식: 클라이언트가 일정한 주기로 서버에 업데이트 요청을 보내는 방법. 지속적인 HTTP 요청이 발생하기 때문에 리소스 낭비가 발생한다.
+> 
+> 2.websocket 방식: 실시간 양방향 통신을 위한 스펙으로 서버와 브라우저가 지속적으로 연결된 TCP라인을 통해 실시간으로 데이터를 주고받을 수 있도록 하는 
+> HTML5 사양이다. 연결지향 양방향 전이중 통신이 가능하며 채팅, 게임, 주식 차트 등에 사용된다. polling은 주기적으로 HTTP 요청을 수행하지만, 
+> websocket은 연결을 유지하여 서버와 클라이언트 간 양방향 통신이 가능하다.  
+> 
+> 3.SSE(server push event) 방식: 이벤트가 [서버 -> 클라이언트] 방향으로만 흐르는 단방향 통신 채널이다. 
+> SSE는 클라이언트가 polling과 같이 주기적으로 http 요청을 보낼 필요없이 http 연결을 통해 서버에서 클라이언트로 데이터를 보낼 수 있다.  
+
+### SSE in Spring 
+> spring framework 4.2 부터는 `SseEmitter` 클래스를 통해서 구현할 수 있다.   
+> spring framework 5 부터는 WebFlux 를 통해서 SSE 통신이 가능하다.  
+
+### 참조사이트
+> [[Spring + SSE] Server-Sent Events를 이용한 실시간 알림](https://velog.io/@max9106/Spring-SSE-Server-Sent-Events%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EC%95%8C%EB%A6%BC)  
+
+---
+
+## Firebase
+### 프로젝트 추가
+> https://console.firebase.google.com/ Firebase 콘솔 페이지에서 프로젝트 추가 버튼을 클릭하여 추가한다.
+
+### FCM 관련 용어
+> **Notification Server**  
+> GCM, APNs 와 같이, mobile 기기에 Push 알림을 전송하는 서버입니다.
+> 
+> **Client App**  
+> 사용자의 mobile기기에 설치된 app을 의미합니다. Push 알림을 받는 역할을 합니다.
+> 
+> **Provider**  
+> Client App 을 위한 서버입니다. 필요시 Notification Server 에 요청을 전송하여, Notification Server 가 Client App 에 알림을 보냅니다.  
+
+### FCM 전송을 위한 빌드업 과정
+> 1.Client App을 Notification Server 에 등록합니다.  
+> 2.Client App을 켜면 각각의 Client App 을 구분하는 Token 을 Notification Server 에서 발급합니다.  
+> 3.Client App에서 이 Token 을 Provider 로 전송합니다.  
+> 4.Provider는 Token 을 저장해둡니다.  
+> 5.Client App에 알림을 전송할 필요가 있을때, Token 값과 함께 Notification Server에 요청합니다.  
+> 6.Client App에서 Push 알림을 수신합니다.  
+
+### Provider 설정(SpringBoot server)
+> 1.Firebase 콘솔 페이지에서 추가한 프로젝트로 들어간 후 좌측 네이게이션 바에서 프로젝트 개요 옆에 톱니바퀴를 클릭한다.  
+> 2.Settings 에서 서비스 계정 탭을 클릭 후 Firebase Admin SDK 를 클릭 후 새 비공개 키 생성 버튼을 클릭하여 비공개 키를 다운로드 받는다.    
+> 3.다운로드 받은 비공개 키인 firebase_service_key.json 을 SpringBoot 프로젝트의 `src/main/resources/firebase` 디렉터리 하위에 넣는다.  
+> 4.의존성을 추가한다.  
+> ```groovy
+> ...
+> dependencies {
+>     ...
+>     implementation 'com.google.firebase:firebase-admin:9.1.1'
+>     ...
+> }
+> ```
+> 구현은 현재 프로젝트의 src/main/java/starter.springweb.external.client.apppush 를 참조한다.
+
+### 참조사이트
+> [Spring Boot - FCM Push 서버 구축하기](https://galid1.tistory.com/740)
