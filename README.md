@@ -428,8 +428,42 @@
 ---
 
 ## ControllerAdvice
-### TODO
-> TODO
+### 개요
+> @ControllerAdvice는 모든 @Controller 즉, 전역에서 발생할 수 있는 예외를 잡아 처리해주는 annotation 이다.  
+
+### 예시
+> ```java
+> @Slf4j
+> @RestControllerAdvice
+> @RequiredArgsConstructor
+> public class RestControllerExceptionHandler {
+>     /**
+>      * 지원하지 않은 Http Method 및 URI 로 요청한 경우 발생
+>      */
+>     @ExceptionHandler
+>     @ResponseStatus(HttpStatus.BAD_REQUEST)
+>     protected ErrorResponse handleHttpRequestMethodNotSupportedException(HttpServletRequest request,
+>                                                                          HttpRequestMethodNotSupportedException e) {
+>         log.error("[Handle HttpRequestMethodNotSupportedException] requestURI: {} {}",
+>               request.getMethod(), request.getRequestURI(), e);
+>         return ErrorResponse.from(e);
+>     }
+>     ...
+> }
+> ```
+
+### Spring web 예외
+> `HttpRequestMethodNotSupportedException`: 지원하지 않은 Http Method 및 URI 로 요청한 경우 발생.  
+> `MethodArgumentNotValidException`: 애노테이션 @Valid, @Validated 를 사용하여 데이터를 검증할 때 해당 데이터에 에러가 있는 경우 발생.  
+> `BindException`: 애노테이션 @ModelAttribute 으로 binding error 발생시 BindException 발생.  
+> `MethodArgumentTypeMismatchException`: Query string 으로 온 값이 @RequestParam 의 데이터에, PathVariable 로 온 값이 @PathVariable 데이터에 binding 되지 못했을 경우 발생.  
+> `MissingServletRequestParameterException`: Query string 에 @RequestParam(required = true) 값이 누락된 경우 발생.  
+> `MissingRequestHeaderException`: HTTP Header 에 @RequestHeader(required = true) 의 값이 누락된 경우 발생.  
+> `HttpMessageNotReadableException`: Request body 로 온 JSON 문자열이 없거나, JSON 포멧이 아니거나 혹은 @RequestBody 애노테이션을 단 자료형으로 파싱 실패한 경우 발생.  
+> `MissingServletRequestPartException`: Form 에 @RequestPart(required = true) 의 값이 누락된 경우 발생.
+
+### 참조사이트
+> [@ControllerAdvice, @ExceptionHandler를 이용한 예외처리 분리, 통합하기(Spring에서 예외 관리하는 방법, 실무에서는 어떻게?)](https://jeong-pro.tistory.com/195)
 
 ---
 
