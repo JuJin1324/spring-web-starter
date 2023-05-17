@@ -17,6 +17,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -33,9 +34,6 @@ import java.util.stream.Collectors;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 class ErrorResponse {
-    @JsonIgnore
-    private static final String MESSAGE_INTERNAL_SERVER_ERROR = "서버 내부 오류가 발생하였습니다.";
-
     private final long timestamp;
     private final int status;
     private final String error;
@@ -57,7 +55,15 @@ class ErrorResponse {
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST,
                 WebError.INVALID_REQUEST_BODY_FIELD_VALUE.getMessage(),
-                FieldError.of(e.getBindingResult())
+                FieldError.from(e.getBindingResult())
+        );
+    }
+
+    public static ErrorResponse from(ConstraintViolationException e) {
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                String.format(WebError.INVALID_REQUEST_BODY_FIELD_VALUE_FORMAT.getMessage(), e.getMessage()),
+                null
         );
     }
 
@@ -65,7 +71,7 @@ class ErrorResponse {
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST,
                 WebError.INVALID_FORM_FILED_VALUE.getMessage(),
-                FieldError.of(e.getBindingResult())
+                FieldError.from(e.getBindingResult())
         );
     }
 
@@ -77,30 +83,33 @@ class ErrorResponse {
     }
 
     public static ErrorResponse from(MissingServletRequestParameterException e) {
+        String messageOfInvalid = String.format("[%s: null]", e.getParameterName());
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                String.format(WebError.INVALID_REQUEST_PARAM_FIELD_VALUE_FORMAT.getMessage(), e.getParameterName(), "null"),
+                String.format(WebError.INVALID_REQUEST_PARAM_FIELD_VALUE_FORMAT.getMessage(), messageOfInvalid),
                 null);
     }
 
     public static ErrorResponse from(MissingServletRequestPartException e) {
+        String messageOfInvalid = String.format("[%s: null]", e.getRequestPartName());
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                String.format(WebError.INVALID_MULTIPART_FILE_FORMAT.getMessage(), e.getRequestPartName(), "null"),
+                String.format(WebError.INVALID_MULTIPART_FILE_FORMAT.getMessage(), messageOfInvalid),
                 null);
     }
 
     public static ErrorResponse from(MissingRequestHeaderException e) {
+        String messageOfInvalid = String.format("[%s: null]", e.getHeaderName());
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                String.format(WebError.INVALID_REQUEST_HEADER_FORMAT.getMessage(), e.getHeaderName(), "null"),
+                String.format(WebError.INVALID_REQUEST_HEADER_FORMAT.getMessage(), messageOfInvalid),
                 null);
     }
 
     public static ErrorResponse from(HttpMessageNotReadableException e) {
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                String.format(WebError.INVALID_REQUEST_BODY_FIELD_VALUE.getMessage(), "requestBody", e.getHttpInputMessage()),
+                String.format(WebError.INVALID_REQUEST_BODY_FIELD_VALUE_FORMAT.getMessage(), e.getHttpInputMessage()),
                 null);
     }
 
@@ -113,7 +122,7 @@ class ErrorResponse {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class FieldError {
+    static class FieldError {
         private String field;
         private String value;
         private String reason;
@@ -124,13 +133,13 @@ class ErrorResponse {
             this.reason = reason;
         }
 
-        public static List<FieldError> of(final String field, final String value, @Nullable final String reason) {
+        private static List<FieldError> of(final String field, final String value, @Nullable final String reason) {
             List<FieldError> fieldErrors = new ArrayList<>();
             fieldErrors.add(new FieldError(field, value, reason));
             return fieldErrors;
         }
 
-        private static List<FieldError> of(final BindingResult bindingResult) {
+        private static List<FieldError> from(final BindingResult bindingResult) {
             final List<org.springframework.validation.FieldError> fieldErrors = bindingResult.getFieldErrors();
             return fieldErrors.stream()
                     .map(error -> new FieldError(

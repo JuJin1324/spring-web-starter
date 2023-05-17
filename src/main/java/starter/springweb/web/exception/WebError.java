@@ -10,14 +10,14 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 enum WebError {
-    INVALID_REQUEST_BODY_FIELD_VALUE_FORMAT("유효하지 않은 Request Body 입니다. [%s: %s]"),
-    INVALID_REQUEST_PARAM_FIELD_VALUE_FORMAT("유효하지 않은 Request Param 입니다. [%s: %s]"),
-    INVALID_REQUEST_HEADER_FORMAT("유효하지 않은 Request Header 입니다. [%s: %s]"),
+    INVALID_REQUEST_BODY_FIELD_VALUE_FORMAT("유효하지 않은 Request Body 입니다. %s"),
+    INVALID_REQUEST_PARAM_FIELD_VALUE_FORMAT("유효하지 않은 Request Param 입니다. %s"),
+    INVALID_REQUEST_HEADER_FORMAT("유효하지 않은 Request Header 입니다. %s"),
     TYPE_MISMATCH("RequestParam 혹은 PathVariable 에서 Field Type 바인딩에 실패하였습니다."),
     INVALID_FORM_FILED_VALUE("유효하지 않은 Form 입니다."),
     INVALID_REQUEST_BODY_FIELD_VALUE("유효하지 않은 Request Body 입니다."),
-    HTTP_METHOD_NOT_SUPPORTED_FORMAT("지원하지 않는 Http Method 입니다: %s"),
-    INVALID_MULTIPART_FILE_FORMAT("유효하지 않은 Multipart file 입니다: [%s : %s]"),
+    HTTP_METHOD_NOT_SUPPORTED_FORMAT("지원하지 않는 Http Method 입니다. %s"),
+    INVALID_MULTIPART_FILE_FORMAT("유효하지 않은 Multipart file 입니다. %s"),
     ;
 
     private final String message;

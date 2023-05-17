@@ -16,6 +16,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
 
 /**
  * Created by Yoo Ju Jin(jujin@100fac.com)
@@ -40,12 +41,24 @@ public class RestControllerExceptionHandler {
     }
 
     /**
-     * 애노테이션 @Valid, @Validated 를 사용하여 데이터를 검증할 때 해당 데이터에 에러가 있는 경우 발생.
+     * 애노테이션 @Valid 를 사용하여 데이터를 검증할 때 해당 데이터에 에러가 있는 경우 발생.
      */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ErrorResponse handleMethodArgumentNotValidException(HttpServletRequest request,
                                                                   MethodArgumentNotValidException e) {
+        log.error("[Handle MethodArgumentNotValidException] requestURI: {} {}",
+                request.getMethod(), request.getRequestURI(), e);
+        return ErrorResponse.from(e);
+    }
+
+    /**
+     * 애노테이션 @Valid 를 사용하여 데이터를 검증할 때 해당 데이터에 에러가 있는 경우 발생.
+     */
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleMethodArgumentNotValidException(HttpServletRequest request,
+                                                                  ConstraintViolationException e) {
         log.error("[Handle MethodArgumentNotValidException] requestURI: {} {}",
                 request.getMethod(), request.getRequestURI(), e);
         return ErrorResponse.from(e);

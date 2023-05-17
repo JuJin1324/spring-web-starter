@@ -454,7 +454,8 @@
 
 ### Spring web 예외
 > `HttpRequestMethodNotSupportedException`: 지원하지 않은 Http Method 및 URI 로 요청한 경우 발생.  
-> `MethodArgumentNotValidException`: 애노테이션 @Valid, @Validated 를 사용하여 데이터를 검증할 때 해당 데이터에 에러가 있는 경우 발생.  
+> `MethodArgumentNotValidException`: 애노테이션 @Valid 를 사용하여 데이터를 검증할 때 해당 데이터에 에러가 있는 경우 발생.  
+> `ConstraintViolationException`: 애노테이션 @Validated 를 사용하여 데이터를 검증할 때 해당 데이터에 에러가 있는 경우 발생.  
 > `BindException`: 애노테이션 @ModelAttribute 으로 binding error 발생시 BindException 발생.  
 > `MethodArgumentTypeMismatchException`: Query string 으로 온 값이 @RequestParam 의 데이터에, PathVariable 로 온 값이 @PathVariable 데이터에 binding 되지 못했을 경우 발생.  
 > `MissingServletRequestParameterException`: Query string 에 @RequestParam(required = true) 값이 누락된 경우 발생.  
@@ -468,7 +469,11 @@
 ---
 
 ## Spring Validation
-### dependencies
+### @Valid의 개념 및 사용법
+> @Valid는 JSR-303 표준 스펙(자바 진영 스펙)으로써 빈 검증기(Bean Validator)를 이용해 객체의 제약 조건을 검증하도록 지시하는 어노테이션이다. 
+> JSR 표준의 빈 검증 기술의 특징은 객체의 필드에 달린 어노테이션으로 편리하게 검증을 한다는 것이다.  
+> Spring에서는 일종의 어댑터인 LocalValidatorFactoryBean가 제약 조건 검증을 처리한다. 
+> 이를 이용하려면 LocalValidatorFactoryBean을 빈으로 등록해야 하는데, SpringBoot에서는 아래의 의존성만 추가해주면 해당 기능들이 자동 설정된다.  
 > ```groovy
 > ...
 > dependencies {
@@ -478,8 +483,99 @@
 > ...
 > ```
 
-### TODO
-> TODO
+### 예시
+> AddUserRequest.java
+> ```java
+> @Getter
+> @RequiredArgsConstructor
+> public class AddUserRequest {
+> 
+> 	@Email
+> 	private final String email;
+> 
+> 	@NotBlank
+> 	private final String pw;
+> 
+> 	@NotNull
+> 	private final UserRole userRole;
+> 
+> 	@Min(12)
+> 	private final int age;
+> }
+> ```
+> 
+> HomeController.java
+> ```java
+> ...
+> @PostMapping("/user/add") 
+> public void addUser(@RequestBody @Valid AddUserRequest addUserRequest) {
+> ...
+> }
+> ...
+> ```
+
+### @Valid 동작 원리
+> 모든 요청은 프론트 컨트롤러인 디스패처 서블릿을 통해 컨트롤러로 전달된다. 전달 과정에서는 컨트롤러 메소드의 객체를 만들어주는 ArgumentResolver가 동작하는데, 
+> @Valid 역시 ArgumentResolver에 의해 처리가 된다.  
+> 대표적으로 @RequestBody 는 Json 메세지를 객체로 변환해주는 작업이 ArgumentResolver 의 구현체인 RequestResponseBodyMethodProcessor 가 처리하며, 
+> 이 내부에서 @Valid로 시작하는 어노테이션이 있을 경우에 유효성 검사를 진행한다.  
+> 만약 @ModelAttribute를 사용중이라면 ModelAttributeMethodProcessor에 의해 @Valid가 처리된다.  
+> 
+> 그리고 검증에 오류가 있다면 MethodArgumentNotValidException 예외가 발생하게 되고, 디스패처 서블릿에 기본으로 등록된 
+> 예외 리졸버(Exception Resolver)인 DefaultHandlerExceptionResolver에 의해 400 BadRequest 에러가 발생한다.  
+> 이러한 이유로 @Valid는 기본적으로 컨트롤러에서만 동작하며 기본적으로 다른 계층에서는 검증이 되지 않는다. 
+> 다른 계층에서 파라미터를 검증하기 위해서는 @Validated와 결합되어야 하는데, 아래에서 @Validated와 함께 자세히 살펴보도록 하자.
+
+### @Validated의 개념 및 사용법
+> 입력 파라미터의 유효성 검증은 컨트롤러에서 최대한 처리하고 넘겨주는 것이 좋다. 하지만 개발을 하다보면 불가피하게 다른 곳에서 파라미터를 검증해야 할 수 있다. 
+> Spring에서는 이를 위해 AOP 기반으로 메소드의 요청을 가로채서 유효성 검증을 진행해주는 @Validated 를 제공하고 있다. 
+> @Validated는 JSR 표준 기술이 아니며 Spring 프레임워크에서 제공하는 어노테이션 및 기능이다.  
+> 다음과 같이 클래스에 @Validated 를 붙여주고, 유효성을 검증할 메소드의 파라미터에 @Valid 를 붙여주면 유효성 검증이 진행된다.  
+> 
+> ```java
+> @Service
+> @Validated
+> public class UserService {
+> 
+>     public void addUser(@Valid AddUserRequest addUserRequest) {
+> 	      ...
+> 	  }
+> }
+> ```
+> 유효성 검증에 실패하면 에러가 발생하는데, 로그를 확인해보면 이전의 MethodArgumentNotValidException 예외가 아닌 
+> `ConstraintViolationException` 예외가 발생했다. 이는 앞서 잠깐 설명한대로 동작 원리가 다르기 때문인데, 자세히 살펴보도록 하자.  
+
+### @Validated 동작 원리 
+> 특정 ArgumnetResolver에 의해 유효성 검사가 진행되었던 @Valid 와 달리, @Validated 는 AOP 기반으로 메소드 요청을 인터셉터하여 처리된다. 
+> @Validated 를 클래스 레벨에 선언하면 해당 클래스에 유효성 검증을 위한 AOP의 어드바이스 또는 인터셉터(MethodValidationInterceptor)가 등록된다. 
+> 그리고 해당 클래스의 메소드들이 호출될 때 AOP의 포인트 컷으로써 요청을 가로채서 유효성 검증을 진행한다.  
+> 이러한 이유로 @Validated 를 사용하면 컨트롤러, 서비스, 레포지토리 등 계층에 무관하게 스프링 빈이라면 유효성 검증을 진행할 수 있다. 
+> 대신 클래스에는 유효성 검증 AOP가 적용되도록 @Validated 를, 검증을 진행할 메소드에는 @Valid 를 선언해주어야 한다.  
+> 이러한 이유로 @Valid 에 의한 예외는 MethodArgumentNotValidException이며, @Validated 에 의한 예외는 
+> ConstraintViolationException 이다. 이를 알고 있으면 나중에 예외 처리를 할 때 도움이 된다.  
+
+### Annotation
+> 주요 애노테이션  
+> `@Null`: null만 허용한다.  
+> `@NotNull`: 빈 문자열(""), 공백(" ")은 허용하되, Null은 허용하지 않음  
+> `@NotEmpty`: 공백(" ")은 허용하되, Null과 빈 문자열("")은 허용하지 않음  
+> `@NotBlank`: null, 빈 문자열(""), 공백(" ") 모두 허용하지 않는다.  
+> `@Email`: 이메일 형식을 검사한다. 단, 빈 문자열("")의 경우엔 통과 시킨다. @Pattern을 통한 정규식 검사를 더 많이 사용한다.    
+> `@Pattern(regexp = )`: 정규식 검사할 때 사용한다.  
+> `@Size(min =, max = )`: 길이를 제한할 때 사용한다.  
+> `@Max(value = )`: value 이하의 값만 허용한다.  
+> `@Min(value = )`: value 이상의 값만 허용한다.  
+> `@Positive`: 값을 양수로 제한한다.  
+> `@PositiveOrZero`: 값을 양수와 0만 가능하도록 제한한다.  
+> `@Negative`: 값을 음수로 제한한다.  
+> `@NegativeOrZero`: 값을 음수와 0만 가능하도록 제한한다.  
+> `@Future`: Now 보다 미래의 날짜, 시간이어야 한다.  
+> `@FutureOrPresent`: Now 거나 미래의 날짜, 시간이어야 한다.  
+> `@Past`: Now 보다 과거의 날짜, 시간이어야 한다.  
+> `@PastFutureOrPresent`: Now 거나 과거의 날짜, 시간이어야 한다.  
+
+### 참조사이트
+> [[Spring] @Valid와 @Validated를 이용한 유효성 검증의 동작 원리 및 사용법 예시 - (1/2)](https://mangkyu.tistory.com/174)
 
 ---
 
