@@ -190,7 +190,9 @@
 > ```
 
 ### [Custom] TrimStringModule
-> 앞뒤 공백이 있는 문자열의 공백을 없애서 직렬화(json -> dto), 역직렬화(dto -> json)
+> 앞뒤 공백이 있는 문자열의 공백을 없애서 직렬화(json -> dto), 역직렬화(dto -> json)  
+> 모든 데이터가 trim 을 필요로하지는 않는다. 예를 들면 텍스트 메시지와 같은 것들은 앞뒤 공백을 제거할지 안할지는 논의가 필요한 부분이다.  
+> 즉 TrimStringModule 의 경우 필수가 아닌 논의를 통해서 선택해야할 사항이다.  
 > ```java
 > @Configuration
 > public class JacksonConfiguration {
@@ -216,14 +218,14 @@
 >     static class TrimStringSerializer extends JsonSerializer<String> {
 >         @Override
 >         public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
->             gen.writeString(StringUtils.trimWhitespace(value));
+>             gen.writeString(value.trim());
 >         }
 >     }
 >     
 >     static class TrimStringDeserializer extends JsonDeserializer<String> {
 >         @Override
 >         public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
->             return StringUtils.trimWhitespace(p.getValueAsString());
+>             return p.getValueAsString().trim();
 >         }
 >     }
 > }

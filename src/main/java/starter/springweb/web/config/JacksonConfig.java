@@ -66,14 +66,14 @@ public class JacksonConfig {
     static class TrimStringSerializer extends JsonSerializer<String> {
         @Override
         public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeString(StringUtils.trimWhitespace(value));
+            gen.writeString(value.trim());
         }
     }
 
     static class TrimStringDeserializer extends JsonDeserializer<String> {
         @Override
         public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            return StringUtils.trimWhitespace(p.getValueAsString());
+            return p.getValueAsString().trim();
         }
     }
 }
