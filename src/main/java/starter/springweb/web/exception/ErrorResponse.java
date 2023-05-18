@@ -18,6 +18,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import javax.validation.ConstraintViolationException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -107,9 +110,17 @@ class ErrorResponse {
     }
 
     public static ErrorResponse from(HttpMessageNotReadableException e) {
+        String body;
+        try (InputStream inputStream = e.getHttpInputMessage().getBody()){
+            body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException ex) {
+            body = ex.getMessage();
+        }
+
+        String messageOfInvalid = String.format("[requestBody: %s]", body);
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                String.format(WebError.INVALID_REQUEST_BODY_FIELD_VALUE_FORMAT.getMessage(), e.getHttpInputMessage()),
+                String.format(WebError.INVALID_REQUEST_BODY_FIELD_VALUE_FORMAT.getMessage(), messageOfInvalid),
                 null);
     }
 
