@@ -1,6 +1,6 @@
 # spring-web-starter
 
-## Apache tomcat
+## Apache Tomcat
 ### 웹 서버(Web server)와 웹 애플리케이션 서버(WAS)
 > **웹 서버**  
 > 클라이언트에서 요청하는 HTTP요청을 처리하는 서버를 의미한다. 이는 정적타입(HTML, CSS, 이미지 등)의 데이터만을 처리한다.
@@ -19,6 +19,8 @@
 > 웹 서버와는 다르게 DB 연결, 다른 응용프로그램과 상호 작용 등 동적인 기능들을 사용할 수 있다.  
 
 ### application.yml
+> 기본 값은 다음 클래스에서 확인 가능: `org.springframework.boot.autoconfigure.web.ServerProperties`  
+> 
 > **Connection 관련**  
 > `server.tomcat.connection-timeout`: 커넥션 타임아웃 설정, 기본값은 없다.    
 > `server.tomcat.keep-alive-timeout`: 커넥션 종료 전 다른 HTTP 요청을 기다리는 시간 설정. 설정하지 않으면 connection-timeout 이 사용, 
