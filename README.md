@@ -24,7 +24,7 @@
 > **Connection 관련**  
 > `server.tomcat.connection-timeout`: 커넥션 타임아웃 설정, 기본값은 없다.    
 > `server.tomcat.keep-alive-timeout`: 커넥션 종료 전 다른 HTTP 요청을 기다리는 시간 설정. 설정하지 않으면 connection-timeout 이 사용, 
-> -1 이면 무한. 기본값은 100.  
+> -1 이면 무한.  
 > `server.tomcat.max-connections`: 서버가 주어진 시간에 처리할 수 있는 최대 커넥션 설정. 기본값은 8192.  
 > 
 > **Thread 관련**  
@@ -44,8 +44,8 @@
 > `server.tomcat.use-relative-redirects`: sendRedirect 호출에 의해 생성된 HTTP 1.1 혹은 그 이후 헤더가 상대/절대 리다이렉션을 사용할지 여부. http에서 http로 리다이렉트 되는 경우 true로 설정. 기본값은 false.  
 > `server.tomcat.reject-illegal-header`: 잘못된 헤더 이름이나 값을 갖는 request를 거부할지 여부. 기본값은 true.  
 > `server.tomcat.additional-tld-skip-patterns`: TLD(Tag Library Descriptor : JSP에서 사용되는 커스텀 태그 나 JSTL태그 설정파일) 제외 패턴 설정. 기본값은 없음.  
-> `server.tomcat.relaxed-path-chars`: URI 경로에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.  	 
-> `server.tomcat.relaxed-query-chars`: URL 쿼리에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.   
+> `server.tomcat.relaxed-path-chars`: URI 경로에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.  
+> `server.tomcat.relaxed-query-chars`: URL 쿼리에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.  
 > `server.tomcat.uri-encoding`: URI 인코딩 설정. 기본값은 UTF-8.  
 > 
 > **Remoteip 관련**  
@@ -59,14 +59,14 @@
 > **AccessLog 관련**  
 > `server.tomcat.accesslog.buffered`: 주기적으로 접속로그의 출력 버퍼를 플러시 할지 설정. 기본값은 true.  
 > `server.tomcat.accesslog.check-exists`: 접속로그의 이름이 바뀐경우 파일이 존재하는 지 확인 여부. 기본값은 false  
-> `server.tomcat.accesslog.condition-if`: request.getAttribute("attribute name") 이 null이 아닐 경우만 로깅. 기본값은 없음.  	 
+> `server.tomcat.accesslog.condition-if`: request.getAttribute("attribute name") 이 null이 아닐 경우만 로깅. 기본값은 없음.  
 > `server.tomcat.accesslog.condition-unless`: request.getAttribute("attribute name") 이 null일 경우만 로깅. 기본값은 없음.  
 > `server.tomcat.accesslog.directory`: 로그 파일이 생성되는 경로 설정. 기본값은 같은 디렉토리의 logs.  
 > `server.tomcat.accesslog.enabled`: 접속로그 활성화 여부. 기본값은 false.  
-> `server.tomcat.accesslog.encoding`: 로그파일 케릭터셋 설정. 기본값은 시스템 케릭터셋.  	 
+> `server.tomcat.accesslog.encoding`: 로그파일 케릭터셋 설정. 기본값은 시스템 케릭터셋.  
 > `server.tomcat.accesslog.file-date-format`: 로그파일 이름의 날짜 형식 설정. 기본값은 `.yyyy-mm-dd`.  
 > `server.tomcat.accesslog.ipv6-canonical`: RFC 5952에 정의된 IPv6 표준 표현 형식을 사용할지 여부. 기본값은 false.  
-> `server.tomcat.accesslog.locale`: 로그에 사용되는 timesamp locale(언어, 지역 설정, 출력 형식 등을 정의하는 문자열) 접미사. 기본값은 없음.  	 
+> `server.tomcat.accesslog.locale`: 로그에 사용되는 timesamp locale(언어, 지역 설정, 출력 형식 등을 정의하는 문자열) 접미사. 기본값은 없음.  
 > `server.tomcat.accesslog.max-days`: 접속 로그 보관 기간 설정. 기본값은 -1.  
 > `server.tomcat.accesslog.pattern`: 접속 로그 패턴 설정. 기본값은 `common`.  
 > `server.tomcat.accesslog.prefix`: 접속 로그 접두사 설정. 기본값은 `access_log`.  
@@ -76,7 +76,7 @@
 > `server.tomcat.accesslog.rotate`: 접속 로그의 rotation 여부. 기본값은 true.  
 > 
 > **기타**  
-> `server.tomcat.basedir`: 톰캣 기본 디렉토리 설정. 기본값은 없음.  	 
+> `server.tomcat.basedir`: 톰캣 기본 디렉토리 설정. 기본값은 없음.  
 > `server.tomcat.background-processor-delay`: 백그라운드 프로세스 호출 사이의 딜레이 설정. 시간 접미사를 쓰지 않으면 초로 사용 (초:s, 분:m..). 기본값은 10s.  
 > `server.tomcat.mbeanregistry.enabled`: mBean(Managed Bean) Registry 활성화 여부. 기본값은 false.  
 > 
@@ -296,10 +296,14 @@
 ### 구현
 > ArgumentResolver는 HandlerMethodArgumentResolver 를 구현함으로써 시작된다.  
 > ```java
-> boolean supportsParameter(MethodParameter parameter);
+> public interface HandlerMethodArgumentResolver {
 > 
-> @Nullable
-> Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception;
+> 	boolean supportsParameter(MethodParameter parameter);
+> 
+> 	@Nullable
+> 	Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+> 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception;
+> }
 > ```
 > 우리는 원하는 ArgumentResolver가 실행되길 원하는 Parameter의 앞에 특정 어노테이션을 생성해 붙인다.  
 > supportsParameter는 요청받은 메서드의 인자에 원하는 어노테이션이 붙어있는지 확인하고 원하는 어노테이션을 포함하고 있으면 true를 반환한다.  
@@ -405,7 +409,7 @@
 > 
 > 예를 들어, 특정한 메소드의 실행 결과를 HttpSession 객체에 같이 담아야 하는 경우를 생각해 볼 수 있습니다. 
 > 컨트롤러에서는 Model 객체에 결과 데이터를 저장하고, 인터셉터의 PostHandle()에서 이를 이용해 HttpSession에 결과를 담는다면 
-> 컨트롤러에서 HttpSession을 처리할 필요가 없게 됩니다.  
+> 컨트롤러에서 HttpSession을 처리할 필요가 없게 됩니다.(실제로는 하면 안되는 짓...)  
 > ```java
 > @Override
 > public void postHandle(HttpServletRequest request,
@@ -585,7 +589,7 @@
 
 ## Spring Multipart
 ### Multipart 가 생긴 이유
-> Sprint MVC 의 파일 업로드에 대해 알아보기 전에 Multipart/form-data 에 대해 먼저 알아야 합니다.  
+> Spring MVC 의 파일 업로드에 대해 알아보기 전에 Multipart/form-data 에 대해 먼저 알아야 합니다.  
 > 우리가 일반적으로 폼 데이터를 전송하면 application/x-www-form-urlencoded 의 형식으로 전송됩니다. 
 > HTTP body 에 바로 전송하고자 하는 데이터가 들어가는 형태입니다. name=kim&age=26 과 같은 key-value 쌍이 body에 들어가는 것이지요.  
 > 이렇게 동일한 타입의 문자 데이터를 전송하는 것은 전혀 무리가 없습니다.
@@ -665,7 +669,7 @@
 
 ### MultipartFile 의 메서드
 > `String getName()`: 파라미터의 이름 <input> 태그의 이름  
-> `String getOriginalFilename()`: 업로그되는 파일의 이름  
+> `String getOriginalFilename()`: 업로드되는 파일의 이름  
 > `boolean isEmpty()`: 파일이 존재하지 않는 경우 true  
 > `long getSize()`: 업로드되는 파일의 크기  
 > `byte[] getBytes()`: byte[]로 파일 데이터 반환  
@@ -706,7 +710,8 @@
 
 ## Firebase
 ### 프로젝트 추가
-> https://console.firebase.google.com/ Firebase 콘솔 페이지에서 프로젝트 추가 버튼을 클릭하여 추가한다.
+> 링크: https://console.firebase.google.com/   
+> Firebase 콘솔 페이지에서 프로젝트 추가 버튼을 클릭하여 추가한다.
 
 ### FCM 관련 용어
 > **Notification Server**  
