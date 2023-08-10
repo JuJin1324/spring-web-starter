@@ -1,6 +1,52 @@
 # spring-web-starter
 
-## Apache tomcat
+## 미들웨어
+### 개념
+> 미들웨어에서 미들(Middle)과 소프트웨어(Software)의 합성어로 미들웨어는 표준화된 인터페이스를 제공하며 복잡한 분산 시스템에서 
+> 이기종간에 통신 및 데이터 관리 등 가능하게 통합 관리해주는 역할이다.  
+> * 표준화된 인터페이스 제공 기능
+> * 다양한 환경 지원, 체계가 다른 업무와 상호 연동이 가능
+> * 분산된 업무를 동시에 처리 가능하여 자료의 일관성이 유지
+> * 부하의 분산이 가능
+> 통상적으로 기업에서 말하는 미들웨어 환경은 웹/어플리케이션 서버를 의미한다.
+>
+> DBMS를 직접 클라이언트가 연결되어 동작하는 방식이 여러 가지 단점이 있었음을 알게 된 후 이러한 문제점을 해결하기 위해 등장한것이 미들웨어라는 개념이다. 
+> 클라이언트와 DBMS사이에 위의 그림과 같이 또 다른 서버를 두는 방식이다.   
+> 클라이언트는 단순히 요청만 중앙에 있는 서버에게 보내고, 중앙에 있는 서버(미들웨어)는 대부분의 로직을 수행한다.   
+> 이때, 데이터를 조작할 일이 있으면 DBMS에게 부탁한다.  
+
+### WAS 주요기능
+> * 프로그래밍 실행환경과 데이버베이스 접속 기능을 제공.
+> * 여러개의 트랜잭션을 관리.
+> * 업무를 처리하는 비즈니스 로직을 수행  
+> 
+> 이 외에도 WAS는 기본적으로 웹서버의 기능도 제공한다.  
+> 그래서 웹서버 따로 WAS 따로 설치안하고 톰캣이라는 WAS하나만 설치하고 이용이 가능한 이유는 이 WAS, 톰캣이 가지고 있는 웹서버가 
+> 충분한 기능을 하고 있기 때문에 굳이 따로 Apache같은 웹서버를 같이 설치 안하고 톰캣만 설치해서 사용하는 것임.  
+> 
+> 사실 웹서버 없이 WAS만 있어도 정적인 콘텐츠와 동적인 콘텐츠를 모두 제공할 수 있음.  
+> WAS 등장이 초창기였을 때에는 WAS에 내장된 웹서버가 성능이 좀 떨어졌음. 
+> 그랬기 때문에 초창기에는 웹어플리케이션을 실행할 때, Apache와 톰캣을 같이 설치해서 실행을 했어야 됐는데, 
+> 이게 계속 발전하면서 웹 서버의 역할도 충분히 해주고 있기 때문에 웹 서버를 따로 설치하지 않아도 충분히 동작하는 경우들이 굉장히 많아짐.  
+> 
+> 그럼에도 불구하고 웹서버가 WAS 앞단에 있으면 좋은 이유는 있음.  
+> 웹서버는 상대적으로 WAS보다 간단한 구조로 만들어져 있음. 사람들이 많이 접속하는 대용량 웹어플리케이션의 경우에는 서버의 수가 여러대 일수 있음. 
+> 가끔 프로그램이 혼자 종료되는 경우 있지않음? WAS에서 동작하도록 개발자가 만든 프로그램이 오작동이 발생해서 WAS 자체에 문제가 발생하는 경우도 있음. 
+> 이 경우, WAS를 재시작해야 하는 경우가 생기는데, 문제가 있는 WAS를 재 시작할 때 앞단의 웹 서버에서 먼저 해당 WAS를 이용하지 못하도록 하고 
+> WAS를 재시작한다면 해당 웹 애플리케이션을 사용하는 사람은 WAS의 문제가 발생한지 모르고 이용할 수 있을 것임. 
+> 이러한 처리를 장애극복기능 이라고 함.  
+> 대용량 웹애플리케이션에는 무중단으로 운영하기 위해서 상당히 중요한기능임. 이러한 기능 때문에 보통 웹서버가 WAS앞단에 동작하도록 하는 경우가 많음.  
+> 즉 정리하자면,
+> * 규모가 커질수록 웹 서버와 WAS를 분리합니다.  
+> * 자원 이용의 효율성 및 장애 극복, 배포 및 유지보수의 편의성을 위해 웹서버와 WAS를 대체로 분리합니다.  
+
+### 참조사이트
+> [[WEB] 미들웨어란?](https://linked2ev.github.io/devlog/2022/01/26/WEB-%EB%AF%B8%EB%93%A4%EC%9B%A8%EC%96%B4%EB%9E%80/)  
+> [[인프라 뿌시기 #1] 미들웨어, 개념을 알아보자](https://velog.io/@unyoi/%EC%9D%B8%ED%94%84%EB%9D%BC-%EB%BF%8C%EC%8B%9C%EA%B8%B01-%EB%AF%B8%EB%93%A4%EC%9B%A8%EC%96%B4-%EA%B0%9C%EB%85%90%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90)  
+
+---
+
+## Apache Tomcat
 ### 웹 서버(Web server)와 웹 애플리케이션 서버(WAS)
 > **웹 서버**  
 > 클라이언트에서 요청하는 HTTP요청을 처리하는 서버를 의미한다. 이는 정적타입(HTML, CSS, 이미지 등)의 데이터만을 처리한다.
@@ -19,10 +65,12 @@
 > 웹 서버와는 다르게 DB 연결, 다른 응용프로그램과 상호 작용 등 동적인 기능들을 사용할 수 있다.  
 
 ### application.yml
+> 기본 값은 다음 클래스에서 확인 가능: `org.springframework.boot.autoconfigure.web.ServerProperties`  
+> 
 > **Connection 관련**  
 > `server.tomcat.connection-timeout`: 커넥션 타임아웃 설정, 기본값은 없다.    
 > `server.tomcat.keep-alive-timeout`: 커넥션 종료 전 다른 HTTP 요청을 기다리는 시간 설정. 설정하지 않으면 connection-timeout 이 사용, 
-> -1 이면 무한. 기본값은 100.  
+> -1 이면 무한.  
 > `server.tomcat.max-connections`: 서버가 주어진 시간에 처리할 수 있는 최대 커넥션 설정. 기본값은 8192.  
 > 
 > **Thread 관련**  
@@ -42,8 +90,8 @@
 > `server.tomcat.use-relative-redirects`: sendRedirect 호출에 의해 생성된 HTTP 1.1 혹은 그 이후 헤더가 상대/절대 리다이렉션을 사용할지 여부. http에서 http로 리다이렉트 되는 경우 true로 설정. 기본값은 false.  
 > `server.tomcat.reject-illegal-header`: 잘못된 헤더 이름이나 값을 갖는 request를 거부할지 여부. 기본값은 true.  
 > `server.tomcat.additional-tld-skip-patterns`: TLD(Tag Library Descriptor : JSP에서 사용되는 커스텀 태그 나 JSTL태그 설정파일) 제외 패턴 설정. 기본값은 없음.  
-> `server.tomcat.relaxed-path-chars`: URI 경로에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.  	 
-> `server.tomcat.relaxed-query-chars`: URL 쿼리에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.   
+> `server.tomcat.relaxed-path-chars`: URI 경로에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.  
+> `server.tomcat.relaxed-query-chars`: URL 쿼리에 포함되어야하는 콤마로 구분된 문자 목록. "<>[\](^'{|}" 만 허용. 기본값은 없음.  
 > `server.tomcat.uri-encoding`: URI 인코딩 설정. 기본값은 UTF-8.  
 > 
 > **Remoteip 관련**  
@@ -57,14 +105,14 @@
 > **AccessLog 관련**  
 > `server.tomcat.accesslog.buffered`: 주기적으로 접속로그의 출력 버퍼를 플러시 할지 설정. 기본값은 true.  
 > `server.tomcat.accesslog.check-exists`: 접속로그의 이름이 바뀐경우 파일이 존재하는 지 확인 여부. 기본값은 false  
-> `server.tomcat.accesslog.condition-if`: request.getAttribute("attribute name") 이 null이 아닐 경우만 로깅. 기본값은 없음.  	 
+> `server.tomcat.accesslog.condition-if`: request.getAttribute("attribute name") 이 null이 아닐 경우만 로깅. 기본값은 없음.  
 > `server.tomcat.accesslog.condition-unless`: request.getAttribute("attribute name") 이 null일 경우만 로깅. 기본값은 없음.  
 > `server.tomcat.accesslog.directory`: 로그 파일이 생성되는 경로 설정. 기본값은 같은 디렉토리의 logs.  
 > `server.tomcat.accesslog.enabled`: 접속로그 활성화 여부. 기본값은 false.  
-> `server.tomcat.accesslog.encoding`: 로그파일 케릭터셋 설정. 기본값은 시스템 케릭터셋.  	 
+> `server.tomcat.accesslog.encoding`: 로그파일 케릭터셋 설정. 기본값은 시스템 케릭터셋.  
 > `server.tomcat.accesslog.file-date-format`: 로그파일 이름의 날짜 형식 설정. 기본값은 `.yyyy-mm-dd`.  
 > `server.tomcat.accesslog.ipv6-canonical`: RFC 5952에 정의된 IPv6 표준 표현 형식을 사용할지 여부. 기본값은 false.  
-> `server.tomcat.accesslog.locale`: 로그에 사용되는 timesamp locale(언어, 지역 설정, 출력 형식 등을 정의하는 문자열) 접미사. 기본값은 없음.  	 
+> `server.tomcat.accesslog.locale`: 로그에 사용되는 timesamp locale(언어, 지역 설정, 출력 형식 등을 정의하는 문자열) 접미사. 기본값은 없음.  
 > `server.tomcat.accesslog.max-days`: 접속 로그 보관 기간 설정. 기본값은 -1.  
 > `server.tomcat.accesslog.pattern`: 접속 로그 패턴 설정. 기본값은 `common`.  
 > `server.tomcat.accesslog.prefix`: 접속 로그 접두사 설정. 기본값은 `access_log`.  
@@ -74,7 +122,7 @@
 > `server.tomcat.accesslog.rotate`: 접속 로그의 rotation 여부. 기본값은 true.  
 > 
 > **기타**  
-> `server.tomcat.basedir`: 톰캣 기본 디렉토리 설정. 기본값은 없음.  	 
+> `server.tomcat.basedir`: 톰캣 기본 디렉토리 설정. 기본값은 없음.  
 > `server.tomcat.background-processor-delay`: 백그라운드 프로세스 호출 사이의 딜레이 설정. 시간 접미사를 쓰지 않으면 초로 사용 (초:s, 분:m..). 기본값은 10s.  
 > `server.tomcat.mbeanregistry.enabled`: mBean(Managed Bean) Registry 활성화 여부. 기본값은 false.  
 > 
@@ -294,10 +342,14 @@
 ### 구현
 > ArgumentResolver는 HandlerMethodArgumentResolver 를 구현함으로써 시작된다.  
 > ```java
-> boolean supportsParameter(MethodParameter parameter);
+> public interface HandlerMethodArgumentResolver {
 > 
-> @Nullable
-> Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception;
+> 	boolean supportsParameter(MethodParameter parameter);
+> 
+> 	@Nullable
+> 	Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+> 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception;
+> }
 > ```
 > 우리는 원하는 ArgumentResolver가 실행되길 원하는 Parameter의 앞에 특정 어노테이션을 생성해 붙인다.  
 > supportsParameter는 요청받은 메서드의 인자에 원하는 어노테이션이 붙어있는지 확인하고 원하는 어노테이션을 포함하고 있으면 true를 반환한다.  
@@ -482,7 +534,7 @@
 > 
 > 예를 들어, 특정한 메소드의 실행 결과를 HttpSession 객체에 같이 담아야 하는 경우를 생각해 볼 수 있습니다. 
 > 컨트롤러에서는 Model 객체에 결과 데이터를 저장하고, 인터셉터의 PostHandle()에서 이를 이용해 HttpSession에 결과를 담는다면 
-> 컨트롤러에서 HttpSession을 처리할 필요가 없게 됩니다.  
+> 컨트롤러에서 HttpSession을 처리할 필요가 없게 됩니다.(실제로는 하면 안되는 짓...)  
 > ```java
 > @Override
 > public void postHandle(HttpServletRequest request,
@@ -662,7 +714,7 @@
 
 ## Spring Multipart
 ### Multipart 가 생긴 이유
-> Sprint MVC 의 파일 업로드에 대해 알아보기 전에 Multipart/form-data 에 대해 먼저 알아야 합니다.  
+> Spring MVC 의 파일 업로드에 대해 알아보기 전에 Multipart/form-data 에 대해 먼저 알아야 합니다.  
 > 우리가 일반적으로 폼 데이터를 전송하면 application/x-www-form-urlencoded 의 형식으로 전송됩니다. 
 > HTTP body 에 바로 전송하고자 하는 데이터가 들어가는 형태입니다. name=kim&age=26 과 같은 key-value 쌍이 body에 들어가는 것이지요.  
 > 이렇게 동일한 타입의 문자 데이터를 전송하는 것은 전혀 무리가 없습니다.
@@ -742,7 +794,7 @@
 
 ### MultipartFile 의 메서드
 > `String getName()`: 파라미터의 이름 <input> 태그의 이름  
-> `String getOriginalFilename()`: 업로그되는 파일의 이름  
+> `String getOriginalFilename()`: 업로드되는 파일의 이름  
 > `boolean isEmpty()`: 파일이 존재하지 않는 경우 true  
 > `long getSize()`: 업로드되는 파일의 크기  
 > `byte[] getBytes()`: byte[]로 파일 데이터 반환  
@@ -783,7 +835,8 @@
 
 ## Firebase
 ### 프로젝트 추가
-> https://console.firebase.google.com/ Firebase 콘솔 페이지에서 프로젝트 추가 버튼을 클릭하여 추가한다.
+> 링크: https://console.firebase.google.com/   
+> Firebase 콘솔 페이지에서 프로젝트 추가 버튼을 클릭하여 추가한다.
 
 ### FCM 관련 용어
 > **Notification Server**  
