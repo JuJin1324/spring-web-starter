@@ -3,6 +3,7 @@ package starter.springweb.web.controller;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import starter.springweb.web.resolver.Authenticated;
@@ -27,7 +28,7 @@ public class HomeController {
     }
 
     @GetMapping("/pagination")
-    public Page<String> getPagination(@Valid PageRequest pageRequest) {
+    public Page<String> getPagination(PageRequest pageRequest) {
         log.info("pageRequest: {}", pageRequest);
 
         return Page.of(pageRequest.getCount(), pageRequest.getStartIndex(), 5, false,
