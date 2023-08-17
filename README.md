@@ -400,6 +400,103 @@
 > ...
 > ```
 
+### 예시 2 - 커스텀 PageRequest
+> PageRequest.java
+> ```java
+> @Getter
+> @ToString
+> public class PageRequest {
+>     public static final int DEFAULT_COUNT = 10;
+>     public static final int DEFAULT_START_INDEX = 0;
+> 
+>     private final int count;
+> 
+>     private final int startIndex;
+> 
+>     private final PageSort sortBy;
+> 
+>     public PageRequest(int count, int startIndex, PageSort sortBy) {
+>         validateCount(count);
+>         validateIndex(startIndex);
+> 
+>         this.count = count;
+>         this.startIndex = startIndex;
+>         this.sortBy = sortBy;
+>     }
+> 
+>     public static PageRequest of(int count, int startIndex, PageSort pageSort) {
+>         return new PageRequest(count, startIndex, pageSort);
+>     }
+> 
+>     public static PageRequest of(int count, int startIndex) {
+>         return new PageRequest(count, startIndex, PageSort.noSort());
+>     }
+> 
+>     public static PageRequest getDefault() {
+>         return new PageRequest(DEFAULT_COUNT, DEFAULT_START_INDEX, PageSort.noSort());
+>     }
+> 
+>     private void validateCount(int count) {
+>         if (!(count >= 1 && count <= 100)) {
+>             throw new IllegalArgumentException("PageRequest.count");
+>         }
+>     }
+> 
+>     private void validateIndex(int startIndex) {
+>         if (startIndex < 0) {
+>             throw new IllegalArgumentException("PageRequest.startIndex");
+>         }
+>     }
+> }
+> ```
+> 
+> PageRequestArgumentResolver.java  
+> `supportsParameter` 메서드로 Controller 에서 매개변수로 PageRequest 클래스가 오면 해당 Argument Resolver 의 
+> `resolveArgument` 메서드를 실행한다.    
+> ```java
+> public class PageRequestArgumentResolver implements HandlerMethodArgumentResolver {
+>     @Override
+>     public boolean supportsParameter(MethodParameter parameter) {
+>         return parameter.getParameterType().equals(PageRequest.class);
+>     }
+> 
+>     @Override
+>     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+>                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+>         int count = getCount(webRequest);
+>         int startIndex = getStartIndex(webRequest);
+>         PageSort pageSort = getPageSort(webRequest);
+>         if (pageSort == null) {
+>             return PageRequest.of(count, startIndex);
+>         }
+>         return PageRequest.of(count, startIndex, pageSort);
+>     }
+> 
+>     private int getCount(NativeWebRequest webRequest) {
+>         String[] counts = webRequest.getParameterMap().get("count");
+>         return counts == null ? PageRequest.DEFAULT_COUNT : Integer.parseInt(counts[0]);
+>     }
+> 
+>     private int getStartIndex(NativeWebRequest webRequest) {
+>         String[] startIndices = webRequest.getParameterMap().get("start_index");
+>         return startIndices == null ? PageRequest.DEFAULT_START_INDEX : Integer.parseInt(startIndices[0]);
+>     }
+> 
+>     private PageSort getPageSort(NativeWebRequest webRequest) {
+>         String[] sortBies = webRequest.getParameterMap().get("sort_by");
+>         if (sortBies == null) {
+>             return PageSort.noSort();
+>         }
+> 
+>         StringTokenizer tokenizer = new StringTokenizer(sortBies[0], ",");
+>         String sortKey = tokenizer.nextToken();
+>         String sortValue = tokenizer.nextToken();
+> 
+>         return PageSort.of(sortKey, Sorts.getMatchingSorts(sortValue));
+>     }
+> }
+> ```
+
 ---
 
 ## Interceptor
