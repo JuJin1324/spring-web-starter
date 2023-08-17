@@ -794,3 +794,59 @@
 
 ### 참조사이트
 > [Spring Boot - FCM Push 서버 구축하기](https://galid1.tistory.com/740)
+
+---
+
+## Spring Cloud
+### Feign Client
+> Spring Cloud 에서 Rest API 를 간편 호출하도록 하는 클라이언트  
+> 
+> build.gradle
+> ```groovy
+> ext {
+>     ...
+>     set('springCloudVersion', "2020.0.2")
+> }
+> ...
+> dependencies {
+>     ...
+>     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+>     implementation group: 'io.github.openfeign', name: 'feign-gson', version: '11.0'
+> }
+> ```
+> 
+> **FeignClient 정의**    
+> SampleFeignClient.java
+> ```java
+> @FeignClient(name = "sampleFeign", url = "http://localhost:8080/feign/sample", configuration = FeignSampleConfig.class)
+> public interface SampleFeignClient {
+>     @GetMapping("/{owner}/{repo}/sample")
+>     List<SampleDto> listSampleDto(@PathVariable("owner") String owner, @PathVariable("repo") String repo);
+> }
+> ```
+> 
+> **FeignClient 사용**   
+> UsingFeignClientService.java
+> ```java
+> @RequiredArgsConstructor
+> public class UsingFeignClientService {
+>     private final SampleFeignClient sampleFeignClient;
+>      
+>     public void useFeignClient() {
+>         List<SampleDto> sampleDtos = sampleFeignClient.listSampleDto("ownerSample", "repoSample");
+>         ...
+>     }
+> }
+> ```
+> 
+> FeignClient 를 Spring 에서 사용하기 위해서는 Main 클래스에 `@EnableFeignClient` 애노테이션 선언이 필요하다.  
+> MainApplication.java
+> ```java
+> @EnableFeignClient
+> @SpringBootApplication
+> public class MainApplication {
+>     public static void main(String[] args) {
+>         SpringApplication.run(MainApplication.class, args);
+>     }
+> }
+> ```
