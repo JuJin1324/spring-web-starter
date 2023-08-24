@@ -301,6 +301,11 @@
 >     return objectMapper;
 > }
 > ```
+> 
+> **참조사이트**  
+> [Snake-Case Parameters in Spring Boot REST Controllers](https://www.beyondjava.net/spring-boot-snake-case)
+> [[Java] Jackson 프로퍼티명 snake_case <-> camelCase 변환](https://umbum.dev/1140)  
+> 
 
 ### 참조사이트
 > [[JAVA] 자바 날짜 포맷 변경 방법(SimpleDateFormat) yyyyMMdd](https://junghn.tistory.com/entry/JAVA-자바-날짜-포맷-변경-방법SimpleDateFormat-yyyyMMdd)
