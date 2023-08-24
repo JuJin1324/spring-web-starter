@@ -8,7 +8,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -29,6 +28,7 @@ public class JacksonConfig {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(javaTimeModule());
         objectMapper.registerModule(trimStringModule());
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         return objectMapper;
     }
 

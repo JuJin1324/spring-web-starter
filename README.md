@@ -193,7 +193,7 @@
 
 ---
 
-## ObjectMapper
+## ObjectMapper(Jackson)
 ### JavaTimeModule
 > POST, PUT, DELETE 와 같이 Request body 를 담은 요청에서 문자열로 표현된 날짜를
 > LocalDate, LocalDateTime 으로 직렬화해주는 모듈이다.  
@@ -276,6 +276,29 @@
 >             return p.getValueAsString().trim();
 >         }
 >     }
+> }
+> ```
+
+### JSON attribute 표현을 CamelCase 에서 snake_case 로 변환
+> 기본적으로 스프링은 jackson 을 사용하기 때문에 application.yml 에 해당 설정을 추가한다.  
+> ```yaml
+> spring:
+>     jackson:
+>         property-naming-strategy: SNAKE_CASE
+> ```
+> 그러면 Controller 에서 응답 시 기존 Java 클래스에 CamelCase 로 작성했던 필드들이 스프링 내부의 Jackson 을 통해서 snake_case 로 표시된다.  
+> 
+> 만약 ObjectMapper 를 @Bean 으로 등록한 경우 application.yml 의 설정이 적용되지 않는다. Jackson 내부적으로 @Bean 으로 등록된 ObjectMapper 를 
+> 사용하는 것 같다. 그래서 자체적으로 ObjectMapper 를 빈으로 등록하면 Jackson 에서 해당 ObjectMapper 를 보게 된다.  
+> 무튼 이런 경우 ObjectMapper 에 다음과 같이 설정을 추가한다.  
+> ```java
+> @Bean
+> @Primary
+> public ObjectMapper serializingObjectMapper() {
+>     ObjectMapper objectMapper = new ObjectMapper();
+>     ...
+>     objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+>     return objectMapper;
 > }
 > ```
 
